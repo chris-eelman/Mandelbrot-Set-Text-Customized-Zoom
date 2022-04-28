@@ -5,16 +5,85 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>Mandelbrot Set</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
+
 <body>
-  <canvas id="myCanvas" style="display: block; margin-top: 100px;margin-left: auto;margin-right: auto;">
-  </canvas>
-  <p style="text-align: center;">
-    <em>Double click on a specific point in the image to zoom in</em>
-  </p>
-  <button onclick = randomPoint()>random point</button>
-  <input id = "input" type="text" onchange = "zoomingText = true; zoomText()">
+  <div > 
+    <div class="title" >
+      <p>Christopher Eelman's Geometry Project</p>
+      <br>
+      <h1 style="text-align: center; font: serif;" >Mandelbrot Set Random and Personalized Zoom</h1>
+      <br>
+      <p>Keep zooming in randomly too see a part of the Mandelbrot set that probobly no one has seen before,</p>
+      <br>
+      <p>Or, enter in your name to see where the zoom will bring you... wherever it brings you, that image is yours! Your name will always bring you to that spot!</p>
+      <br>
+      <button id="downloadImg" style="font-size: 30px; font-family:'Courier New', Courier, monospace" onclick = "downloadCanvasAsImage()">Download Image</button>
+
+    </div>
+    <canvas id="myCanvas" style="display: block; margin-top: 3px;margin-left:10% ;margin-right: auto; ">
+    </canvas>
+
+    <div class="imageName" id="imageName"></div>
+    </div>
+    
+
+  <div  class = "parentDiv2">
+    <div  class="childDiv">
+      <p style="font-size: 20px; font-family:'Courier New', Courier, monospace">
+        Double click on a specific point 
+      </p>
+      <p style="font-size: 20px; font-family:'Courier New', Courier, monospace">
+        in the image to zoom OR:
+      </p>
+      <button class = "randomPointButton" onclick = randomPoint() >Zoom in on A Random Point</button>
+    </div>
+    <div>
+      <p style="font-size: 20px; font-family:'Courier New', Courier, monospace">Zoom in on a point based on the text you enter:</p> 
+      <input id = "input" type="text" style="width: 300px; height: 30px" size = 30, onchange = "zoomingText = true; getZoomArrays()">
+      <button style="font-size: 20px;" ="submitInput" onclick = "zoomingText = true; getZoomArrays()" >Submit</button>
+    </div>
+
+    <br>
+    <button class ="resetButton"onClick="window.location.reload();">RESET Mandelbrot Zoom</button>
+    <br>
+  </div>
+  <br>
+  <br>
+  <div style="margin-left: 15%; margin-right: 15%; font-size: 18px;">
+    The initial code is a program I found online that displays the Mandelbrot set in different colors based on how quickly a given point becomes large. This program also had the ability to double click on a spot and then Zoom in. The initial program I found <a href="https://github.com/foqc/mandelbrot-set">here on Github.</a> You can look at this code to see what I started with, and compare it with what I added. 
+<br><br>
+    But… I customized this program and added features to make my geometry project unique. The first thing I added was the random zoom button. This is a way for the program to keep zooming in on an interesting section of the Mandelbrot set and not eventually be all black. As you know the borders of the Mandelbrot set is where interesting fractal patterns are. To do this I took all the pixels being displayed on the 800 by 600 pixel output and checked first if an induvidual pixel is in he Mandelbrot set, and then if the next one is not in the Mandelbrot set, that point is a border point. There is then a list of all the border points currently. When displayed in white, the border points look like this: 
+    <br>
+    <img src="border_points.png" width="400" height="300">
+    <img src="border2.png" width="400" height="300">
+    <img src="borders 4.png" width="400" height="300">
+    <img src="border3.png" width="400" height="300">
+
+
+
+
+
+<br><br>
+    The program then selects a random point out of those white points and zooms in on it. Remember, those white border points are where the interesting stuff happens. By repeating this process it creates a completely unique interesting zoom every time. And after 7 zooms (or even less), it is basically guaranteed that no-one else has zoomed into that part of the Mandelbrot set before. 
+    <br><br>
+    <br>
+    <br>
+    To go further with customization, I then added a feature that will zoom in on a point based on text that you enter. For example, if I enter in my name, “Christopher Eelman”, It will zoom to a specific point, a specific amount of times based on the amount of characters you enter and always produce the same image. Try it for yourself! Enter in "Christopher Eelman", and you will get the same exact image below:
+    <img src="christophereelmanss.png" width="570" height="417">
+
+    <br><br>
+    To generate coordinates from text, I first need to create a hash from the text. I first assign each letter to a prime number (A = 2, B = 3, C = 5, … X = 97, Y = 101, Z = 103). Then I take the value of the first letter, and then for each consecutive letter, I multiply by the character value and the position in the text (For the word DOG, D=1, O=2, G=3). For example, the text “CHRIS” produces the hash 2665251960, I then break the digits up by threes, my first X zoom coordinate will be 266 and my first Y coordinate will be 525. I then repeat and use the rest of the digits to get the next zoom coordinates. As you can see the more characters, the more digits, and the more coordinates you can get to zoom. I used prime numbers, being unique numbers, because multiplication of them always produces a different hash value. Got some information about this from https://stackoverflow.com/questions/41399371/generate-random-numbers-that-depend-on-string-hash
+    <br><br>
+    By entering in the same text / name, you will zoom into the same exact part of the Mandelbrot set every time, claiming that spot as yours! It is fun to see which text yields which results, you can play around with it for hours. When your done, you can then download one of the images you created, print it, or share it with others. 
+    
+    
+    
+    
+  </div>
+
   
   <script src="mandelbrot.js" type="text/javascript"></script>
 </body>
