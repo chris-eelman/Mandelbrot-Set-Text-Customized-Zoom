@@ -1,8 +1,3 @@
-/**
- *  autor: foqc
- *  github: foqc
- */
-// noprotect
 const canvas = document.getElementById('myCanvas')
 const ctx = canvas.getContext('2d')
 
@@ -18,14 +13,52 @@ let IMAGINARY_SET = { start: -1, end: 1 }
 const ZOOM_FACTOR = 0.1
 const TASKS = []
 
+var text = "";
+
 var zoomingText = false;
+/*
+function downloadImage(){
+    var canvas = document.getElementById("myCanvas");
+    var img    = canvas.toDataURL("image/png");
+    document.write('<img src="'+img+'"/>');
+}
+*/
+
+function downloadCanvasAsImage(){
+
+    let canvasImage = document.getElementById('myCanvas').toDataURL('image/png');
+    
+    // this can be used to download any image from webpage to local disk
+    let xhr = new XMLHttpRequest();
+    xhr.responseType = 'blob';
+    xhr.onload = function () {
+        let a = document.createElement('a');
+        a.href = window.URL.createObjectURL(xhr.response);
+        if(text == ""){
+            a.download = 'mandelbrot_image.png';
+        }else{
+            a.download = text + '_mandelbrot' + '.png';
+        }
+
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      };
+      xhr.open('GET', canvasImage); // This is to download the canvas Image
+      xhr.send();
+}
+
 
 
 var primes = [2,3,5,7,11,13,17,	19,	23,	29,	31,	37,	41,	43,	47,	53,	59,	61,	67,	71,
-    73,	79,	83,	89,	97,	101, 103];
+73,	79,	83,	89,	97,	101, 103];
+
  
 function hash(input){
-    var text = input.toLowerCase();
+    var text = input.toLowerCase().replace(",","").replace(".","").replace("!","").replace("\?","").replace("\"","").replace("\'","").replace(":","").replace(":","").replace(" ","").replace(/[0-9]/g, '');
+    text = text.replace(/\s+/g, '');
+    console.log(text);
     var hash = BigInt(1);
     for (var i = 0; i < text.length; i ++){
         hash = hash * BigInt((primes[text.charCodeAt(i) - 96])) * BigInt((text.length - i));
@@ -35,14 +68,20 @@ function hash(input){
 
 
 var instance = 0;
-function zoomText(){
-    if (zoomingText == true){
-        var text = document.getElementById("input").value;
+var arrayX = [];
+var arrayY = [];
+
+function getZoomArrays(){
+    if (instance == 0){
+
+        document.getElementById("imageName").innerHTML = "";
+
+        text = document.getElementById("input").value;
         var hashed = hash(text);
         console.log(hashed);
     
-        var arrayX = hashed.match(/.{1,3}/g)
-        var arrayY = [];
+        arrayX = hashed.match(/.{1,3}/g);
+        
     
         for (let i = 1; i < arrayX.length; i = i + 1){
             arrayY.push(arrayX[i]); 
@@ -59,7 +98,6 @@ function zoomText(){
         }
 
 
-
         if(arrayX.length != arrayY.length){
             if (arrayX.length > arrayY.length){
                 arrayX.pop();
@@ -73,56 +111,62 @@ function zoomText(){
         console.log(arrayX.length);
         console.log(arrayY.length);
 
-        var isBorder = false;
-        while(isBorder == false){
-
-            if (borders[arrayY[instance]][arrayX[instance]] == true){
-                console.log(borders[arrayY[instance]][arrayX[instance]]);
-                console.log(arrayX[instance]);
-                console.log(arrayY[instance]);
-
-                isBorder = true;
-            }else{
-                arrayY[instance] ++;
-                if (arrayY[instance] > 600){
-                    arrayY[instance] = 0;
-                }
-                arrayX[instance] ++;
-                if (arrayX[instance] > 800){
-                    arrayX[instance] = 0;
-                }
-            }
-        }
-
-        const zfw = (WIDTH * ZOOM_FACTOR)
-        const zfh = (HEIGHT * ZOOM_FACTOR)
-    
-    
-        REAL_SET = {
-            start: getRelativePoint(arrayX[instance] - zfw, WIDTH, REAL_SET),
-            end: getRelativePoint(arrayX[instance] + zfw, WIDTH, REAL_SET)
-        }
-        IMAGINARY_SET = {
-            start: getRelativePoint(arrayY[instance] - zfh, HEIGHT, IMAGINARY_SET),
-            end: getRelativePoint(arrayY[instance] + zfh, HEIGHT, IMAGINARY_SET)
-        }
-        instance ++;
-        if (instance < arrayX.length){
-            zoomingText = true;
-        } else{
-            zoomingText = false;
-        }
-    
-        init()
-        borders = new Array(800);
-        for (var i = 0; i < borders.length; i++) {
-            borders[i] = new Array(600);
-        }
-
-
-
+        drawInstanceZoom();
 
     }
+
+}
+
+function drawInstanceZoom(){
+    oo = 0;
+    if (instance < arrayX.length){
+    var isBorder = false;
+    while(isBorder == false){
+
+        if (borders[arrayY[instance]][arrayX[instance]] == true){
+            console.log(arrayX[instance]);
+            console.log(arrayY[instance]);
+
+            isBorder = true;
+        }else{
+            arrayY[instance] ++;
+            if (arrayY[instance] > 600){
+                arrayY[instance] = 0;
+            }
+            arrayX[instance] ++;
+            if (arrayX[instance] > 800){
+                arrayX[instance] = 0;
+            }
+        }
+    }
+
+    const zfw = (WIDTH * ZOOM_FACTOR)
+    const zfh = (HEIGHT * ZOOM_FACTOR)
+
+
+    REAL_SET = {
+        start: getRelativePoint(arrayX[instance] - zfw, WIDTH, REAL_SET),
+        end: getRelativePoint(arrayX[instance] + zfw, WIDTH, REAL_SET)
+    }
+    IMAGINARY_SET = {
+        start: getRelativePoint(arrayY[instance] - zfh, HEIGHT, IMAGINARY_SET),
+        end: getRelativePoint(arrayY[instance] + zfh, HEIGHT, IMAGINARY_SET)
+    }
+    if (instance < arrayX.length){
+        zoomingText = true;
+    } else{
+        zoomingText = false;
+    }
+    instance ++;
+    init()
+    borders = new Array(800);
+    for (var i = 0; i < borders.length; i++) {
+        borders[i] = new Array(600);
+    }
+}else{
+    document.getElementById("imageName").innerHTML = "Zoom Reuslts for " + "\"" + text.toLocaleUpperCase() + "\"";
+    ;
+}
 }
 
 
@@ -167,6 +211,7 @@ const palette = (size = 250) => {
 
         colors.push(c)
     }
+
     return colors
 }
 
@@ -202,8 +247,11 @@ function getRandomBorderPoint(){
 
 
 }
+
+
 var oo = 0;
 const draw = (res) => {
+   
     if (TASKS.length > 0)
         worker.postMessage({ col: TASKS.shift() })
 
@@ -214,17 +262,26 @@ const draw = (res) => {
         c = isMandelbrotSet ? [0, 0, 0] : colorPalette[m % (colorPalette.length - 1)]
         ctx.fillStyle = `rgb(${c[0]}, ${c[1]}, ${c[2]})`
         ctx.fillRect(col, i, 1, 1)
+        const canvas2 = document.getElementById('canvas2')
+        const ctx2 = canvas.getContext('2d')
 
         if (last != mandelbrotSets[i][1]){
             last = mandelbrotSets[i][1];
             borders[i][col] = true;
-        }
+            //ctx2.fillStyle = "White";
+            //ctx2.fillRect( col, i, 1, 1 );
+        }//else{
+            //ctx2.fillStyle = "Black";
+            //ctx2.fillRect( col, i, 1, 1 );
+        //}
         
+    }    
+
+    oo++
+    if ((oo == 800) && zoomingText == true){
+        drawInstanceZoom();
     }
-    oo ++;
-    if(oo == 800){
-        zoomText();
-    }
+    
 }
 
 function sleep(ms) {
@@ -255,6 +312,8 @@ canvas.addEventListener('dblclick', e => {
 
     init()
 })
+
+
 
 function randomPoint(){
     const zfw = (WIDTH * ZOOM_FACTOR)
